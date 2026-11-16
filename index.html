@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a1a2e">
-<title>Verbos - Spanish Verb SRS</title>
+<title>Spanish SRS - Verbos & Vocabulario</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#1a1a2e;--card:#16213e;--accent:#e94560;--accent2:#0f3460;--text:#eee;--dim:#888;--green:#2ecc71;--red:#e74c3c;--orange:#f39c12;--blue:#3498db}
@@ -88,19 +88,78 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .quiz-verb{font-size:24px}
   .toggle-grid{grid-template-columns:1fr}
 }
+
+/* === VOCAB MODULE === */
+.mode-switcher{display:flex;background:var(--card);border-bottom:1px solid rgba(255,255,255,.12)}
+.mode-switcher button{flex:1;padding:12px;background:none;border:none;color:var(--dim);font-size:15px;font-weight:600;cursor:pointer;transition:.2s;border-bottom:3px solid transparent}
+.mode-switcher button.active{color:var(--text);border-bottom-color:var(--accent);background:rgba(233,69,96,.05)}
+
+.search-box{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:15px;outline:none;margin-bottom:12px}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{color:var(--dim)}
+
+.cat-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.cat-pill{padding:6px 12px;border-radius:20px;font-size:12px;border:1px solid rgba(255,255,255,.15);background:none;color:var(--dim);cursor:pointer;transition:.2s;white-space:nowrap}
+.cat-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.word-list{display:flex;flex-direction:column;gap:4px}
+.word-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card);border-radius:10px;cursor:pointer;transition:.2s;gap:8px}
+.word-item:active{background:rgba(255,255,255,.08)}
+.word-es{font-size:16px;font-weight:600;flex:1}
+.word-en{font-size:14px;color:var(--dim);text-align:right}
+.word-en.hidden{color:transparent;background:rgba(255,255,255,.08);border-radius:4px;padding:2px 8px;user-select:none}
+.word-pos{font-size:11px;color:var(--accent);opacity:.7;margin-left:4px}
+.word-cat-label{font-size:11px;color:var(--dim);padding:2px 6px;background:rgba(255,255,255,.05);border-radius:4px}
+
+.vocab-review-container{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;max-width:500px;margin:0 auto;width:100%}
+.vocab-card{background:var(--card);border-radius:16px;padding:24px;width:100%;text-align:center}
+.vocab-card-image{width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-bottom:16px;background:rgba(0,0,0,.2)}
+.vocab-card-image.no-image{display:flex;align-items:center;justify-content:center;height:120px;font-size:48px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:16px}
+.vocab-card-note{font-size:13px;color:var(--dim);font-style:italic;margin-bottom:12px}
+.vocab-card-en-reveal{font-size:13px;color:transparent;background:rgba(255,255,255,.08);border-radius:4px;padding:4px 12px;cursor:pointer;display:inline-block;margin-top:8px;transition:.2s;user-select:none}
+.vocab-card-en-reveal.shown{color:var(--dim);background:none}
+
+.my-cards-list{display:flex;flex-direction:column;gap:8px}
+.my-card-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:10px}
+.my-card-thumb{width:50px;height:50px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,.05);flex-shrink:0}
+.my-card-thumb.no-img{display:flex;align-items:center;justify-content:center;font-size:20px}
+.my-card-info{flex:1;min-width:0}
+.my-card-es{font-size:15px;font-weight:600}
+.my-card-note{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.my-card-status{font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--dim)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.empty-state h3{font-size:16px;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:13px;line-height:1.5}
+
+.import-area{margin-top:16px}
+.import-area textarea{width:100%;height:120px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;font-family:monospace;outline:none;resize:vertical}
+.import-area textarea:focus{border-color:var(--accent)}
 </style>
 </head>
 <body>
 
+<div class="mode-switcher">
+  <button class="active" id="modeVerbos" onclick="switchMode('verbos')">Verbos</button>
+  <button id="modeVocab" onclick="switchMode('vocab')">Vocabulario</button>
+</div>
+
 <div class="header">
-  <h1>Verbos</h1>
+  <h1 id="modeTitle">Verbos</h1>
   <div class="streak" id="streakDisplay"></div>
 </div>
 
-<div class="nav">
+<div class="nav" id="verbosNav">
   <button class="active" data-screen="settings">Settings</button>
   <button data-screen="quiz">Quiz</button>
   <button data-screen="stats">Stats</button>
+</div>
+
+<div class="nav" id="vocabNav" style="display:none">
+  <button class="active" data-screen="vocabBank">Word Bank</button>
+  <button data-screen="vocabReview">Review</button>
+  <button data-screen="vocabCards">My Cards</button>
 </div>
 
 <div class="screen active" id="settings">
@@ -182,6 +241,86 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="font-size:12px;color:var(--dim);margin-top:8px">Export saves a .json file with all your SRS progress. Import restores from a backup.</div>
   </div>
   <button class="danger-btn" onclick="resetAllData()">Reset All Progress</button>
+</div>
+
+<!-- === VOCAB SCREENS === -->
+<div class="screen" id="vocabBank">
+  <input type="text" class="search-box" id="wbSearch" placeholder="Search words..." oninput="filterWordBank()">
+  <div class="cat-filters" id="catFilters"></div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:8px" id="wbCount">663 words</div>
+  <div class="word-list" id="wordList"></div>
+</div>
+
+<div class="screen" id="vocabReview">
+  <div class="pool-info" id="vocabPoolInfo">
+    <div class="row"><span class="label">Due for review</span><span class="val due" id="vDueCount">0</span></div>
+    <div class="row"><span class="label">Learning</span><span class="val review" id="vLearningCount">0</span></div>
+    <div class="row"><span class="label">New cards</span><span class="val new" id="vNewCount">0</span></div>
+    <div class="row"><span class="label">Total cards</span><span class="val" id="vTotalCards">0</span></div>
+  </div>
+  <button class="start-btn" onclick="startVocabReview()" id="vocabStartBtn">Start Review</button>
+  <div class="vocab-review-container" id="vocabQuizArea" style="display:none">
+    <div class="progress"><div class="progress-fill" id="vProgressFill"></div></div>
+    <div class="stats-bar">
+      <div class="stat correct-stat"><span id="vCorrectCount">0</span>&nbsp;correct</div>
+      <div class="stat wrong-stat"><span id="vWrongCount">0</span>&nbsp;wrong</div>
+      <div class="stat"><span id="vQuestionNum">0</span>&nbsp;/ <span id="vTotalQ">0</span></div>
+    </div>
+    <div class="vocab-card">
+      <div class="card-badge new-badge" id="vCardBadge">NEW</div>
+      <div id="vCardImageWrap"></div>
+      <div class="vocab-card-note" id="vCardNote"></div>
+      <div class="input-area">
+        <input type="text" id="vocabAnswerInput" placeholder="Type the Spanish word..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="answer-reveal" id="vAnswerReveal"></div>
+      <div class="vocab-card-en-reveal" id="vEnReveal" onclick="this.classList.add('shown')">English</div>
+    </div>
+    <div class="quiz-actions">
+      <button class="btn-reveal" id="vRevealBtn" onclick="vocabRevealAnswer()">Show Answer</button>
+      <button class="btn-next" id="vSubmitBtn" onclick="vocabCheckAnswer()">Submit</button>
+      <button class="btn-next" id="vNextBtn" onclick="vocabNextQuestion()" style="display:none">Next</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="vocabCards">
+  <div class="stat-card">
+    <h3>My Flashcards</h3>
+    <div id="myCardsList">
+      <div class="empty-state">
+        <div class="icon">🃏</div>
+        <h3>No cards yet</h3>
+        <p>Create flashcards in a Claude session, then import them here as JSON.</p>
+      </div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <h3>Import Cards (JSON)</h3>
+    <div class="import-area">
+      <textarea id="importJsonText" placeholder='Paste JSON array, e.g.:
+[{"es":"perro","en":"dog","imageUrl":"https://...","note":"My dog","cat":"Animals"}]'></textarea>
+      <button class="start-btn" style="margin-top:8px" onclick="importVocabCards()">Import Cards</button>
+    </div>
+    <div style="margin-top:8px">
+      <label class="start-btn" style="background:var(--accent2);font-size:14px;padding:10px;text-align:center;cursor:pointer;display:block">
+        Import from File
+        <input type="file" accept=".json" onchange="importVocabFile(event)" style="display:none">
+      </label>
+    </div>
+  </div>
+  <div class="stat-card">
+    <h3>Backup / Export</h3>
+    <div style="display:flex;gap:8px">
+      <button class="start-btn" onclick="exportVocabData()" style="background:var(--accent2);font-size:14px;padding:10px">Export All Vocab Data</button>
+      <label class="start-btn" style="background:var(--accent2);font-size:14px;padding:10px;text-align:center;cursor:pointer">
+        Import Backup
+        <input type="file" accept=".json" onchange="importVocabBackup(event)" style="display:none">
+      </label>
+    </div>
+    <div style="font-size:12px;color:var(--dim);margin-top:8px">Export saves cards + SRS progress. Import restores from backup.</div>
+  </div>
+  <button class="danger-btn" onclick="resetVocabData()">Reset Vocab Progress</button>
 </div>
 
 <script>
@@ -364,9 +503,9 @@ function updatePoolInfo() {
 }
 
 // ---- Nav ----
-document.querySelectorAll('.nav button').forEach(btn => {
+document.querySelectorAll('#verbosNav button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#verbosNav button').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.screen).classList.add('active');
@@ -400,7 +539,7 @@ function startQuiz() {
   sessionDeck = buildSession();
   if (!sessionDeck.length) { alert('No cards available! Enable at least one mood and tense.'); return; }
   correct = 0; wrong = 0; streak = 0; bestStreak = 0; qNum = 0; sessionMisses = {};
-  document.querySelectorAll('.nav button')[1].click();
+  document.querySelectorAll('#verbosNav button')[1].click();
   document.getElementById('totalQ').textContent = sessionDeck.length;
   showQuestion();
 }
@@ -423,7 +562,7 @@ function showQuestion() {
   if (qNum >= sessionDeck.length) {
     srs.globalStats.sessions++;
     saveSRS();
-    document.querySelectorAll('.nav button')[2].click();
+    document.querySelectorAll('#verbosNav button')[2].click();
     return;
   }
   current = getQ(sessionDeck[qNum]);
@@ -635,6 +774,487 @@ document.getElementById('answerInput').addEventListener('keydown', e => {
 // Init
 buildToggles();
 updatePoolInfo();
+
+// ===================================================================
+// === VOCABULARY MODULE ===
+// ===================================================================
+
+const WORD_BANK = [{"en":"young","es":"joven","pos":"adj","cat":"Adjectives","page":7,"id":1},{"en":"shallow","es":"poco profundo","pos":"adj","cat":"Adjectives","page":8,"id":2},{"en":"healthy","es":"sano","pos":"adj","cat":"Adjectives","page":11,"id":3},{"en":"new","es":"nuevo","pos":"adj","cat":"Adjectives","page":11,"id":4},{"en":"short (height)","es":"bajo","pos":"adj","cat":"Adjectives","page":12,"id":5},{"en":"tight","es":"estrecho","pos":"adj","cat":"Adjectives","page":12,"id":6},{"en":"deaf","es":"sordo","pos":"adj","cat":"Adjectives","page":13,"id":7},{"en":"loud","es":"ruidoso","pos":"adj","cat":"Adjectives","page":13,"id":8},{"en":"dark","es":"oscuro","pos":"adj","cat":"Adjectives","page":14,"id":9},{"en":"cold","es":"frío","pos":"adj","cat":"Adjectives","page":16,"id":10},{"en":"wet","es":"húmedo","pos":"adj","cat":"Adjectives","page":16,"id":11},{"en":"long","es":"largo","pos":"adj","cat":"Adjectives","page":18,"id":12},{"en":"loose","es":"suelto","pos":"adj","cat":"Adjectives","page":18,"id":13},{"en":"dead","es":"muerto","pos":"adj","cat":"Adjectives","page":19,"id":14},{"en":"hard","es":"duro","pos":"adj","cat":"Adjectives","page":19,"id":15},{"en":"old (age)","es":"viejo","pos":"adj","cat":"Adjectives","page":19,"id":16},{"en":"curved","es":"curvado","pos":"adj","cat":"Adjectives","page":22,"id":17},{"en":"warm","es":"cálido","pos":"adj","cat":"Adjectives","page":23,"id":18},{"en":"dirty","es":"sucio","pos":"adj","cat":"Adjectives","page":24,"id":19},{"en":"beautiful","es":"bonito","pos":"adj","cat":"Adjectives","page":26,"id":20},{"en":"tall","es":"alto","pos":"adj","cat":"Adjectives","page":26,"id":21},{"en":"cheap","es":"barato","pos":"adj","cat":"Adjectives","page":27,"id":22},{"en":"quiet","es":"silencioso","pos":"adj","cat":"Adjectives","page":28,"id":23},{"en":"alive","es":"vivo","pos":"adj","cat":"Adjectives","page":30,"id":24},{"en":"blind","es":"ciego","pos":"adj","cat":"Adjectives","page":31,"id":25},{"en":"happy","es":"feliz","pos":"adj","cat":"Adjectives","page":32,"id":26},{"en":"narrow","es":"estrecho","pos":"adj","cat":"Adjectives","page":33,"id":27},{"en":"thin","es":"delgado","pos":"adj","cat":"Adjectives","page":34,"id":28},{"en":"small","es":"pequeño","pos":"adj","cat":"Adjectives","page":35,"id":29},{"en":"heavy","es":"pesado","pos":"adj","cat":"Adjectives","page":37,"id":30},{"en":"strong","es":"fuerte","pos":"adj","cat":"Adjectives","page":37,"id":31},{"en":"flat","es":"liso","pos":"adj","cat":"Adjectives","page":40,"id":32},{"en":"ugly","es":"feo","pos":"adj","cat":"Adjectives","page":40,"id":33},{"en":"good","es":"bueno","pos":"adj","cat":"Adjectives","page":42,"id":34},{"en":"dry","es":"seco","pos":"adj","cat":"Adjectives","page":44,"id":35},{"en":"hot","es":"caliente","pos":"adj","cat":"Adjectives","page":44,"id":36},{"en":"thick","es":"gordo","pos":"adj","cat":"Adjectives","page":45,"id":37},{"en":"big","es":"grande","pos":"adj","cat":"Adjectives","page":49,"id":38},{"en":"male","es":"masculino","pos":"adj","cat":"Adjectives","page":49,"id":39},{"en":"fast","es":"rápido","pos":"adj","cat":"Adjectives","page":58,"id":40},{"en":"high","es":"alto","pos":"adj","cat":"Adjectives","page":58,"id":41},{"en":"bad","es":"malo","pos":"adj","cat":"Adjectives","page":60,"id":42},{"en":"sad","es":"triste","pos":"adj","cat":"Adjectives","page":61,"id":43},{"en":"nice","es":"agradable","pos":"adj","cat":"Adjectives","page":62,"id":44},{"en":"light (color)","es":"claro","pos":"adj","cat":"Adjectives","page":63,"id":45},{"en":"female","es":"femenino","pos":"adj","cat":"Adjectives","page":65,"id":46},{"en":"rich","es":"rico","pos":"adj","cat":"Adjectives","page":65,"id":47},{"en":"slow","es":"lento","pos":"adj","cat":"Adjectives","page":67,"id":48},{"en":"poor","es":"pobre","pos":"adj","cat":"Adjectives","page":69,"id":49},{"en":"nuclear","es":"nuclear","pos":"adj","cat":"Adjectives","page":70,"id":50},{"en":"expensive","es":"caro","pos":"adj","cat":"Adjectives","page":72,"id":51},{"en":"low","es":"bajo","pos":"adj","cat":"Adjectives","page":73,"id":52},{"en":"short (length)","es":"corto","pos":"adj","cat":"Adjectives","page":75,"id":53},{"en":"deep","es":"profundo","pos":"adj","cat":"Adjectives","page":77,"id":54},{"en":"weak","es":"débil","pos":"adj","cat":"Adjectives","page":80,"id":55},{"en":"soft","es":"suave","pos":"adj","cat":"Adjectives","page":84,"id":56},{"en":"clean","es":"limpio","pos":"adj","cat":"Adjectives","page":86,"id":57},{"en":"old (worn)","es":"viejo","pos":"adj","cat":"Adjectives","page":86,"id":58},{"en":"sick","es":"enfermo","pos":"adj","cat":"Adjectives","page":86,"id":59},{"en":"famous","es":"famoso","pos":"adj","cat":"Adjectives","page":87,"id":60},{"en":"mean","es":"tacaño","pos":"adj","cat":"Adjectives","page":88,"id":61},{"en":"light (weight)","es":"ligero","pos":"adj","cat":"Adjectives","page":92,"id":62},{"en":"cool","es":"fresco","pos":"adj","cat":"Adjectives","page":93,"id":63},{"en":"wide","es":"ancho","pos":"adj","cat":"Adjectives","page":93,"id":64},{"en":"dog","es":"perro","pos":"noun","cat":"Animals","page":7,"id":65},{"en":"pig","es":"cerdo","pos":"noun","cat":"Animals","page":24,"id":66},{"en":"cat","es":"gato","pos":"noun","cat":"Animals","page":31,"id":67},{"en":"mouse","es":"ratón","pos":"noun","cat":"Animals","page":31,"id":68},{"en":"animal","es":"animal","pos":"noun","cat":"Animals","page":37,"id":69},{"en":"horse","es":"caballo","pos":"noun","cat":"Animals","page":37,"id":70},{"en":"fish","es":"pez","pos":"noun","cat":"Animals","page":40,"id":71},{"en":"bird","es":"pájaro","pos":"noun","cat":"Animals","page":45,"id":72},{"en":"wing","es":"ala","pos":"noun","cat":"Animals","page":45,"id":73},{"en":"cow","es":"vaca","pos":"noun","cat":"Animals","page":73,"id":74},{"en":"art","es":"arte","pos":"noun","cat":"Art","page":47,"id":75},{"en":"movie","es":"película","pos":"noun","cat":"Art","page":49,"id":76},{"en":"instrument","es":"instrumento","pos":"noun","cat":"Art","page":67,"id":77},{"en":"music","es":"música","pos":"noun","cat":"Art","page":67,"id":78},{"en":"band","es":"banda","pos":"noun","cat":"Art","page":87,"id":79},{"en":"song","es":"canción","pos":"noun","cat":"Art","page":87,"id":80},{"en":"coffee","es":"café","pos":"noun","cat":"Beverages","page":38,"id":81},{"en":"juice","es":"jugo","pos":"noun","cat":"Beverages","page":42,"id":82},{"en":"water","es":"agua","pos":"noun","cat":"Beverages","page":56,"id":83},{"en":"beer","es":"cerveza","pos":"noun","cat":"Beverages","page":60,"id":84},{"en":"milk","es":"leche","pos":"noun","cat":"Beverages","page":73,"id":85},{"en":"tea","es":"té","pos":"noun","cat":"Beverages","page":89,"id":86},{"en":"beverage","es":"bebida","pos":"noun","cat":"Beverages","page":93,"id":87},{"en":"back","es":"espalda","pos":"noun","cat":"Body","page":6,"id":88},{"en":"body","es":"cuerpo","pos":"noun","cat":"Body","page":10,"id":89},{"en":"neck","es":"cuello","pos":"noun","cat":"Body","page":10,"id":90},{"en":"ear","es":"oreja","pos":"noun","cat":"Body","page":12,"id":91},{"en":"tear","es":"lágrima","pos":"noun","cat":"Body","page":13,"id":92},{"en":"leg","es":"pata","pos":"noun","cat":"Body","page":24,"id":93},{"en":"voice","es":"voz","pos":"noun","cat":"Body","page":28,"id":94},{"en":"disease","es":"enfermedad","pos":"noun","cat":"Body","page":30,"id":95},{"en":"heart","es":"corazón","pos":"noun","cat":"Body","page":30,"id":96},{"en":"foot","es":"pie","pos":"noun","cat":"Body","page":36,"id":97},{"en":"nose","es":"nariz","pos":"noun","cat":"Body","page":38,"id":98},{"en":"eye","es":"ojo","pos":"noun","cat":"Body","page":39,"id":99},{"en":"finger","es":"dedo","pos":"noun","cat":"Body","page":41,"id":100},{"en":"sweat","es":"sudor","pos":"noun","cat":"Body","page":44,"id":101},{"en":"hand","es":"mano","pos":"noun","cat":"Body","page":49,"id":102},{"en":"shoulder","es":"hombro","pos":"noun","cat":"Body","page":52,"id":103},{"en":"skin","es":"piel","pos":"noun","cat":"Body","page":61,"id":104},{"en":"head","es":"cabeza","pos":"noun","cat":"Body","page":65,"id":105},{"en":"brain","es":"cerebro","pos":"noun","cat":"Body","page":70,"id":106},{"en":"blood","es":"sangre","pos":"noun","cat":"Body","page":72,"id":107},{"en":"beard","es":"barba","pos":"noun","cat":"Body","page":75,"id":108},{"en":"face","es":"cara","pos":"noun","cat":"Body","page":75,"id":109},{"en":"hair","es":"pelo","pos":"noun","cat":"Body","page":75,"id":110},{"en":"lip","es":"labio","pos":"noun","cat":"Body","page":76,"id":111},{"en":"tooth","es":"diente","pos":"noun","cat":"Body","page":76,"id":112},{"en":"knee","es":"rodilla","pos":"noun","cat":"Body","page":80,"id":113},{"en":"toe","es":"dedo dpie","pos":"noun","cat":"Body","page":84,"id":114},{"en":"arm","es":"brazo","pos":"noun","cat":"Body","page":90,"id":115},{"en":"bone","es":"hueso","pos":"noun","cat":"Body","page":90,"id":116},{"en":"mouth","es":"boca","pos":"noun","cat":"Body","page":91,"id":117},{"en":"tongue","es":"lengua","pos":"noun","cat":"Body","page":91,"id":118},{"en":"skirt","es":"falda","pos":"noun","cat":"Clothing","page":12,"id":119},{"en":"clothing","es":"ropa","pos":"noun","cat":"Clothing","page":18,"id":120},{"en":"pants","es":"pantalones","pos":"noun","cat":"Clothing","page":18,"id":121},{"en":"pocket","es":"bolsillo","pos":"noun","cat":"Clothing","page":18,"id":122},{"en":"shoes","es":"zapatos","pos":"noun","cat":"Clothing","page":34,"id":123},{"en":"dress","es":"vestido","pos":"noun","cat":"Clothing","page":35,"id":124},{"en":"shirt","es":"camisa","pos":"noun","cat":"Clothing","page":63,"id":125},{"en":"coat","es":"abrigo","pos":"noun","cat":"Clothing","page":72,"id":126},{"en":"stain","es":"mancha","pos":"noun","cat":"Clothing","page":72,"id":127},{"en":"hat","es":"sombrero","pos":"noun","cat":"Clothing","page":80,"id":128},{"en":"suit","es":"saco","pos":"noun","cat":"Clothing","page":80,"id":129},{"en":"T-shirt","es":"camiseta","pos":"noun","cat":"Clothing","page":92,"id":130},{"en":"white","es":"blanco","pos":"adj","cat":"Colors","page":5,"id":131},{"en":"gray","es":"gris","pos":"adj","cat":"Colors","page":16,"id":132},{"en":"yellow","es":"amarillo","pos":"adj","cat":"Colors","page":45,"id":133},{"en":"green","es":"verde","pos":"adj","cat":"Colors","page":48,"id":134},{"en":"orange","es":"anaranjado","pos":"adj","cat":"Colors","page":57,"id":135},{"en":"color","es":"color","pos":"noun","cat":"Colors","page":61,"id":136},{"en":"blue","es":"azul","pos":"adj","cat":"Colors","page":63,"id":137},{"en":"red","es":"rojo","pos":"adj","cat":"Colors","page":74,"id":138},{"en":"black","es":"negro","pos":"adj","cat":"Colors","page":75,"id":139},{"en":"pink","es":"rosado","pos":"adj","cat":"Colors","page":83,"id":140},{"en":"brown","es":"café","pos":"adj","cat":"Colors","page":92,"id":141},{"en":"Friday","es":"viernes","pos":"noun","cat":"Days","page":6,"id":142},{"en":"Sunday","es":"domingo","pos":"noun","cat":"Days","page":35,"id":143},{"en":"Thursday","es":"jueves","pos":"noun","cat":"Days","page":36,"id":144},{"en":"Wednesday","es":"miércoles","pos":"noun","cat":"Days","page":51,"id":145},{"en":"Tuesday","es":"martes","pos":"noun","cat":"Days","page":59,"id":146},{"en":"Saturday","es":"sábado","pos":"noun","cat":"Days","page":60,"id":147},{"en":"Monday","es":"lunes","pos":"noun","cat":"Days","page":69,"id":148},{"en":"up","es":"arriba","pos":"adv","cat":"Directions","page":5,"id":149},{"en":"north","es":"norte","pos":"noun","cat":"Directions","page":16,"id":150},{"en":"bottom","es":"fondo","pos":"noun","cat":"Directions","page":25,"id":151},{"en":"front","es":"frente","pos":"noun","cat":"Directions","page":39,"id":152},{"en":"left","es":"izquierdo","pos":"adj","cat":"Directions","page":52,"id":153},{"en":"side","es":"lado","pos":"noun","cat":"Directions","page":52,"id":154},{"en":"back (direction)","es":"detrás","pos":"adv","cat":"Directions","page":54,"id":155},{"en":"inside","es":"dentro","pos":"adv","cat":"Directions","page":54,"id":156},{"en":"straight","es":"derecho","pos":"adj","cat":"Directions","page":54,"id":157},{"en":"outside","es":"fuera","pos":"adv","cat":"Directions","page":62,"id":158},{"en":"south","es":"sur","pos":"noun","cat":"Directions","page":68,"id":159},{"en":"west","es":"oeste","pos":"noun","cat":"Directions","page":68,"id":160},{"en":"direction","es":"dirección","pos":"noun","cat":"Directions","page":69,"id":161},{"en":"east","es":"este","pos":"noun","cat":"Directions","page":69,"id":162},{"en":"right","es":"derecho","pos":"adj","cat":"Directions","page":71,"id":163},{"en":"top","es":"cima","pos":"noun","cat":"Directions","page":87,"id":164},{"en":"camera","es":"cámara","pos":"noun","cat":"Electronics","page":25,"id":165},{"en":"lamp","es":"lámpara","pos":"noun","cat":"Electronics","page":26,"id":166},{"en":"clock","es":"reloj","pos":"noun","cat":"Electronics","page":38,"id":167},{"en":"computer","es":"computadora","pos":"noun","cat":"Electronics","page":41,"id":168},{"en":"program","es":"programa","pos":"noun","cat":"Electronics","page":41,"id":169},{"en":"fan","es":"ventilador","pos":"noun","cat":"Electronics","page":53,"id":170},{"en":"cell phone","es":"celular","pos":"noun","cat":"Electronics","page":55,"id":171},{"en":"network","es":"red","pos":"noun","cat":"Electronics","page":55,"id":172},{"en":"laptop","es":"portátil","pos":"noun","cat":"Electronics","page":82,"id":173},{"en":"radio","es":"radio","pos":"noun","cat":"Electronics","page":87,"id":174},{"en":"screen","es":"pantalla","pos":"noun","cat":"Electronics","page":93,"id":175},{"en":"television","es":"televisión","pos":"noun","cat":"Electronics","page":93,"id":176},{"en":"corn","es":"maíz","pos":"noun","cat":"Food","page":24,"id":177},{"en":"chicken","es":"pollo","pos":"noun","cat":"Food","page":33,"id":178},{"en":"dinner","es":"cena","pos":"noun","cat":"Food","page":33,"id":179},{"en":"soup","es":"sopa","pos":"noun","cat":"Food","page":33,"id":180},{"en":"spoon","es":"cuchara","pos":"noun","cat":"Food","page":33,"id":181},{"en":"wine","es":"vino","pos":"noun","cat":"Food","page":33,"id":182},{"en":"rice","es":"arroz","pos":"noun","cat":"Food","page":35,"id":183},{"en":"breakfast","es":"desayuno","pos":"noun","cat":"Food","page":42,"id":184},{"en":"cup","es":"taza","pos":"noun","cat":"Food","page":42,"id":185},{"en":"egg","es":"huevo","pos":"noun","cat":"Food","page":42,"id":186},{"en":"orange (fruit)","es":"naranja","pos":"noun","cat":"Food","page":42,"id":187},{"en":"cake","es":"pastel","pos":"noun","cat":"Food","page":50,"id":188},{"en":"fork","es":"tenedor","pos":"noun","cat":"Food","page":50,"id":189},{"en":"lemon","es":"limón","pos":"noun","cat":"Food","page":50,"id":190},{"en":"plate","es":"plato","pos":"noun","cat":"Food","page":50,"id":191},{"en":"sugar","es":"azúcar","pos":"noun","cat":"Food","page":50,"id":192},{"en":"banana","es":"banana","pos":"noun","cat":"Food","page":51,"id":193},{"en":"beef","es":"carne de res","pos":"noun","cat":"Food","page":51,"id":194},{"en":"bread","es":"pan","pos":"noun","cat":"Food","page":51,"id":195},{"en":"food","es":"comida","pos":"noun","cat":"Food","page":51,"id":196},{"en":"lunch","es":"almuerzo","pos":"noun","cat":"Food","page":51,"id":197},{"en":"bottle","es":"botella","pos":"noun","cat":"Food","page":60,"id":198},{"en":"cheese","es":"queso","pos":"noun","cat":"Food","page":73,"id":199},{"en":"apple","es":"manzana","pos":"noun","cat":"Food","page":78,"id":200},{"en":"oil","es":"aceite","pos":"noun","cat":"Food","page":78,"id":201},{"en":"pork","es":"carne de cerdo","pos":"noun","cat":"Food","page":78,"id":202},{"en":"salt","es":"sal","pos":"noun","cat":"Food","page":78,"id":203},{"en":"seed","es":"semilla","pos":"noun","cat":"Food","page":83,"id":204},{"en":"knife","es":"cuchillo","pos":"noun","cat":"Food","page":88,"id":205},{"en":"ring","es":"anillo","pos":"noun","cat":"House","page":12,"id":206},{"en":"telephone","es":"teléfono","pos":"noun","cat":"House","page":13,"id":207},{"en":"gift","es":"regalo","pos":"noun","cat":"House","page":17,"id":208},{"en":"photograph","es":"fotografía","pos":"noun","cat":"House","page":25,"id":209},{"en":"tool","es":"herramienta","pos":"noun","cat":"House","page":26,"id":210},{"en":"bed","es":"cama","pos":"noun","cat":"House","page":27,"id":211},{"en":"home","es":"casa","pos":"noun","cat":"House","page":29,"id":212},{"en":"lock","es":"cerradura","pos":"noun","cat":"House","page":29,"id":213},{"en":"needle","es":"aguja","pos":"noun","cat":"House","page":30,"id":214},{"en":"letter","es":"carta","pos":"noun","cat":"House","page":32,"id":215},{"en":"paper","es":"papel","pos":"noun","cat":"House","page":32,"id":216},{"en":"chair","es":"silla","pos":"noun","cat":"House","page":33,"id":217},{"en":"table","es":"mesa","pos":"noun","cat":"House","page":33,"id":218},{"en":"box","es":"caja","pos":"noun","cat":"House","page":37,"id":219},{"en":"bathroom","es":"baño","pos":"noun","cat":"House","page":39,"id":220},{"en":"garden","es":"jardín","pos":"noun","cat":"House","page":39,"id":221},{"en":"window","es":"ventana","pos":"noun","cat":"House","page":39,"id":222},{"en":"kitchen","es":"cocina","pos":"noun","cat":"House","page":42,"id":223},{"en":"pool","es":"piscina","pos":"noun","cat":"House","page":44,"id":224},{"en":"floor","es":"piso","pos":"noun","cat":"House","page":46,"id":225},{"en":"pen","es":"bolígrafo","pos":"noun","cat":"House","page":47,"id":226},{"en":"wall","es":"pared","pos":"noun","cat":"House","page":47,"id":227},{"en":"yard","es":"patio","pos":"noun","cat":"House","page":48,"id":228},{"en":"bag","es":"bolsa","pos":"noun","cat":"House","page":52,"id":229},{"en":"bedroom","es":"dormitorio","pos":"noun","cat":"House","page":53,"id":230},{"en":"ceiling","es":"techo","pos":"noun","cat":"House","page":53,"id":231},{"en":"paint","es":"pintura","pos":"noun","cat":"House","page":57,"id":232},{"en":"card","es":"tarjeta","pos":"noun","cat":"House","page":62,"id":233},{"en":"note","es":"nota","pos":"noun","cat":"House","page":64,"id":234},{"en":"pencil","es":"lápiz","pos":"noun","cat":"House","page":64,"id":235},{"en":"dream","es":"sueño","pos":"noun","cat":"House","page":65,"id":236},{"en":"book","es":"libro","pos":"noun","cat":"House","page":66,"id":237},{"en":"page","es":"página","pos":"noun","cat":"House","page":66,"id":238},{"en":"door","es":"puerta","pos":"noun","cat":"House","page":85,"id":239},{"en":"key","es":"llave","pos":"noun","cat":"House","page":85,"id":240},{"en":"roof","es":"tejado","pos":"noun","cat":"House","page":86,"id":241},{"en":"soap","es":"jabón","pos":"noun","cat":"House","page":86,"id":242},{"en":"waiter","es":"camarero","pos":"noun","cat":"Jobs","page":6,"id":243},{"en":"artist","es":"artista","pos":"noun","cat":"Jobs","page":26,"id":244},{"en":"lawyer","es":"abogado","pos":"noun","cat":"Jobs","page":28,"id":245},{"en":"doctor","es":"médico","pos":"noun","cat":"Jobs","page":30,"id":246},{"en":"job","es":"trabajo","pos":"noun","cat":"Jobs","page":32,"id":247},{"en":"manager","es":"gerente","pos":"noun","cat":"Jobs","page":32,"id":248},{"en":"actor","es":"actor","pos":"noun","cat":"Jobs","page":49,"id":249},{"en":"student","es":"estudiante","pos":"noun","cat":"Jobs","page":60,"id":250},{"en":"secretary","es":"secretaria","pos":"noun","cat":"Jobs","page":62,"id":251},{"en":"police","es":"policía","pos":"noun","cat":"Jobs","page":63,"id":252},{"en":"teacher","es":"maestro","pos":"noun","cat":"Jobs","page":64,"id":253},{"en":"author","es":"autor","pos":"noun","cat":"Jobs","page":66,"id":254},{"en":"priest","es":"sacerdote","pos":"noun","cat":"Jobs","page":79,"id":255},{"en":"reporter","es":"periodista","pos":"noun","cat":"Jobs","page":81,"id":256},{"en":"patient","es":"paciente","pos":"noun","cat":"Jobs","page":90,"id":257},{"en":"soldier","es":"soldado","pos":"noun","cat":"Jobs","page":92,"id":258},{"en":"stone","es":"piedra","pos":"noun","cat":"Materials","page":19,"id":259},{"en":"glass","es":"cristal","pos":"noun","cat":"Materials","page":25,"id":260},{"en":"clay","es":"arcilla","pos":"noun","cat":"Materials","page":26,"id":261},{"en":"copper","es":"cobre","pos":"noun","cat":"Materials","page":26,"id":262},{"en":"plastic","es":"plástico","pos":"noun","cat":"Materials","page":27,"id":263},{"en":"diamond","es":"diamante","pos":"noun","cat":"Materials","page":35,"id":264},{"en":"wood","es":"madera","pos":"noun","cat":"Materials","page":45,"id":265},{"en":"gold","es":"oro","pos":"noun","cat":"Materials","page":65,"id":266},{"en":"metal","es":"metal","pos":"noun","cat":"Materials","page":81,"id":267},{"en":"material","es":"material","pos":"noun","cat":"Materials","page":82,"id":268},{"en":"silver","es":"plata","pos":"noun","cat":"Materials","page":82,"id":269},{"en":"dust","es":"polvo","pos":"noun","cat":"Materials","page":92,"id":270},{"en":"foot (measure)","es":"pie","pos":"noun","cat":"Math","page":12,"id":271},{"en":"weight","es":"peso","pos":"noun","cat":"Math","page":21,"id":272},{"en":"circle","es":"círculo","pos":"noun","cat":"Math","page":22,"id":273},{"en":"centimeter","es":"centímetro","pos":"noun","cat":"Math","page":26,"id":274},{"en":"date","es":"fecha","pos":"noun","cat":"Math","page":34,"id":275},{"en":"kilogram","es":"kilogramo","pos":"noun","cat":"Math","page":40,"id":276},{"en":"temperature","es":"temperatura","pos":"noun","cat":"Math","page":44,"id":277},{"en":"meter","es":"metro","pos":"noun","cat":"Math","page":57,"id":278},{"en":"square","es":"cuadrado","pos":"adj","cat":"Math","page":57,"id":279},{"en":"half","es":"mitad","pos":"noun","cat":"Math","page":64,"id":280},{"en":"edge","es":"borde","pos":"noun","cat":"Math","page":77,"id":281},{"en":"pound","es":"libra","pos":"noun","cat":"Math","page":92,"id":282},{"en":"inch","es":"pulgada","pos":"noun","cat":"Math","page":93,"id":283},{"en":"dot","es":"punto","pos":"noun","cat":"Misc","page":5,"id":284},{"en":"pain","es":"dolor","pos":"noun","cat":"Misc","page":6,"id":285},{"en":"verb","es":"verbo","pos":"noun","cat":"Misc","page":9,"id":286},{"en":"noun","es":"sustantivo","pos":"noun","cat":"Misc","page":15,"id":287},{"en":"adjective","es":"adjetivo","pos":"noun","cat":"Misc","page":20,"id":288},{"en":"yes","es":"sí","pos":"adv","cat":"Misc","page":32,"id":289},{"en":"light (brightness)","es":"luz","pos":"noun","cat":"Misc","page":38,"id":290},{"en":"image","es":"imagen","pos":"noun","cat":"Misc","page":47,"id":291},{"en":"hole","es":"agujero","pos":"noun","cat":"Misc","page":48,"id":292},{"en":"piece","es":"trozo","pos":"noun","cat":"Misc","page":50,"id":293},{"en":"consonant","es":"consonante","pos":"noun","cat":"Misc","page":76,"id":294},{"en":"sound","es":"sonido","pos":"noun","cat":"Misc","page":76,"id":295},{"en":"map","es":"mapa","pos":"noun","cat":"Misc","page":77,"id":296},{"en":"no","es":"no","pos":"adv","cat":"Misc","page":77,"id":297},{"en":"injury","es":"herida","pos":"noun","cat":"Misc","page":90,"id":298},{"en":"vowel","es":"vocal","pos":"noun","cat":"Misc","page":91,"id":299},{"en":"pattern","es":"patrón","pos":"noun","cat":"Misc","page":92,"id":300},{"en":"March","es":"marzo","pos":"noun","cat":"Months","page":8,"id":301},{"en":"January","es":"enero","pos":"noun","cat":"Months","page":11,"id":302},{"en":"February","es":"febrero","pos":"noun","cat":"Months","page":16,"id":303},{"en":"June","es":"junio","pos":"noun","cat":"Months","page":23,"id":304},{"en":"December","es":"diciembre","pos":"noun","cat":"Months","page":34,"id":305},{"en":"October","es":"octubre","pos":"noun","cat":"Months","page":36,"id":306},{"en":"August","es":"agosto","pos":"noun","cat":"Months","page":44,"id":307},{"en":"April","es":"abril","pos":"noun","cat":"Months","page":50,"id":308},{"en":"November","es":"noviembre","pos":"noun","cat":"Months","page":59,"id":309},{"en":"July","es":"julio","pos":"noun","cat":"Months","page":74,"id":310},{"en":"May","es":"mayo","pos":"noun","cat":"Months","page":83,"id":311},{"en":"September","es":"septiembre","pos":"noun","cat":"Months","page":84,"id":312},{"en":"Earth","es":"Tierra","pos":"noun","cat":"Nature","page":5,"id":313},{"en":"moon","es":"luna","pos":"noun","cat":"Nature","page":5,"id":314},{"en":"sky","es":"cielo","pos":"noun","cat":"Nature","page":5,"id":315},{"en":"star","es":"estrella","pos":"noun","cat":"Nature","page":5,"id":316},{"en":"ice","es":"hielo","pos":"noun","cat":"Nature","page":8,"id":317},{"en":"river","es":"río","pos":"noun","cat":"Nature","page":8,"id":318},{"en":"rain","es":"lluvia","pos":"noun","cat":"Nature","page":16,"id":319},{"en":"mountain","es":"montaña","pos":"noun","cat":"Nature","page":19,"id":320},{"en":"beach","es":"playa","pos":"noun","cat":"Nature","page":23,"id":321},{"en":"island","es":"isla","pos":"noun","cat":"Nature","page":23,"id":322},{"en":"sand","es":"arena","pos":"noun","cat":"Nature","page":23,"id":323},{"en":"plant","es":"planta","pos":"noun","cat":"Nature","page":24,"id":324},{"en":"soil","es":"tierra","pos":"noun","cat":"Nature","page":24,"id":325},{"en":"sea","es":"mar","pos":"noun","cat":"Nature","page":25,"id":326},{"en":"forest","es":"bosque","pos":"noun","cat":"Nature","page":34,"id":327},{"en":"leaf","es":"hoja","pos":"noun","cat":"Nature","page":34,"id":328},{"en":"snow","es":"nieve","pos":"noun","cat":"Nature","page":34,"id":329},{"en":"wind","es":"viento","pos":"noun","cat":"Nature","page":34,"id":330},{"en":"sun","es":"sol","pos":"noun","cat":"Nature","page":38,"id":331},{"en":"nature","es":"naturaleza","pos":"noun","cat":"Nature","page":45,"id":332},{"en":"root","es":"raíz","pos":"noun","cat":"Nature","page":45,"id":333},{"en":"tree","es":"árbol","pos":"noun","cat":"Nature","page":45,"id":334},{"en":"air","es":"aire","pos":"noun","cat":"Nature","page":53,"id":335},{"en":"lake","es":"lago","pos":"noun","cat":"Nature","page":56,"id":336},{"en":"hill","es":"cerro","pos":"noun","cat":"Nature","page":58,"id":337},{"en":"heat","es":"calor","pos":"noun","cat":"Nature","page":70,"id":338},{"en":"valley","es":"valle","pos":"noun","cat":"Nature","page":73,"id":339},{"en":"ocean","es":"océano","pos":"noun","cat":"Nature","page":77,"id":340},{"en":"wave","es":"ola","pos":"noun","cat":"Nature","page":77,"id":341},{"en":"world","es":"mundo","pos":"noun","cat":"Nature","page":77,"id":342},{"en":"flower","es":"flor","pos":"noun","cat":"Nature","page":83,"id":343},{"en":"grass","es":"hierba","pos":"noun","cat":"Nature","page":84,"id":344},{"en":"fire","es":"fuego","pos":"noun","cat":"Nature","page":88,"id":345},{"en":"one","es":"uno","pos":"num","cat":"Numbers","page":5,"id":346},{"en":"one hundred and one","es":"ciento uno","pos":"num","cat":"Numbers","page":7,"id":347},{"en":"twenty","es":"veinte","pos":"num","cat":"Numbers","page":8,"id":348},{"en":"first","es":"primero","pos":"num","cat":"Numbers","page":11,"id":349},{"en":"five","es":"cinco","pos":"num","cat":"Numbers","page":12,"id":350},{"en":"one thousand and one","es":"mil uno","pos":"num","cat":"Numbers","page":14,"id":351},{"en":"second","es":"segundo","pos":"num","cat":"Numbers","page":16,"id":352},{"en":"eighty","es":"ochenta","pos":"num","cat":"Numbers","page":18,"id":353},{"en":"million","es":"millón","pos":"num","cat":"Numbers","page":19,"id":354},{"en":"seventy","es":"setenta","pos":"num","cat":"Numbers","page":19,"id":355},{"en":"number","es":"número","pos":"noun","cat":"Numbers","page":22,"id":356},{"en":"zero","es":"cero","pos":"num","cat":"Numbers","page":22,"id":357},{"en":"four","es":"cuatro","pos":"num","cat":"Numbers","page":24,"id":358},{"en":"thirty","es":"treinta","pos":"num","cat":"Numbers","page":26,"id":359},{"en":"seven","es":"siete","pos":"num","cat":"Numbers","page":27,"id":360},{"en":"billion","es":"mil millones","pos":"num","cat":"Numbers","page":28,"id":361},{"en":"eleven","es":"once","pos":"num","cat":"Numbers","page":29,"id":362},{"en":"fifteen","es":"quince","pos":"num","cat":"Numbers","page":29,"id":363},{"en":"three","es":"tres","pos":"num","cat":"Numbers","page":31,"id":364},{"en":"eight","es":"ocho","pos":"num","cat":"Numbers","page":33,"id":365},{"en":"thirty one","es":"treinta y uno","pos":"num","cat":"Numbers","page":34,"id":366},{"en":"twenty two","es":"veintidós","pos":"num","cat":"Numbers","page":36,"id":367},{"en":"two","es":"dos","pos":"num","cat":"Numbers","page":36,"id":368},{"en":"fourty","es":"cuarenta","pos":"num","cat":"Numbers","page":38,"id":369},{"en":"nine","es":"nueve","pos":"num","cat":"Numbers","page":38,"id":370},{"en":"six","es":"seis","pos":"num","cat":"Numbers","page":40,"id":371},{"en":"ten","es":"diez","pos":"num","cat":"Numbers","page":41,"id":372},{"en":"one hundred and two","es":"ciento dos","pos":"num","cat":"Numbers","page":44,"id":373},{"en":"twelve","es":"doce","pos":"num","cat":"Numbers","page":44,"id":374},{"en":"thirteen","es":"trece","pos":"num","cat":"Numbers","page":46,"id":375},{"en":"eighteen","es":"dieciocho","pos":"num","cat":"Numbers","page":48,"id":376},{"en":"seventeen","es":"diecisiete","pos":"num","cat":"Numbers","page":50,"id":377},{"en":"sixteen","es":"dieciséis","pos":"num","cat":"Numbers","page":53,"id":378},{"en":"ninety","es":"noventa","pos":"num","cat":"Numbers","page":55,"id":379},{"en":"eighty one","es":"ochenta y uno","pos":"num","cat":"Numbers","page":57,"id":380},{"en":"sixty","es":"sesenta","pos":"num","cat":"Numbers","page":58,"id":381},{"en":"third","es":"tercero","pos":"num","cat":"Numbers","page":59,"id":382},{"en":"twenty one","es":"veintiuno","pos":"num","cat":"Numbers","page":59,"id":383},{"en":"sixty two","es":"sesenta y dos","pos":"num","cat":"Numbers","page":62,"id":384},{"en":"fifty","es":"cincuenta","pos":"num","cat":"Numbers","page":64,"id":385},{"en":"one hundred","es":"cien","pos":"num","cat":"Numbers","page":64,"id":386},{"en":"fifty two","es":"cincuenta y dos","pos":"num","cat":"Numbers","page":66,"id":387},{"en":"one thousand","es":"mil","pos":"num","cat":"Numbers","page":66,"id":388},{"en":"fifty one","es":"cincuenta y uno","pos":"num","cat":"Numbers","page":68,"id":389},{"en":"eighty two","es":"ochenta y dos","pos":"num","cat":"Numbers","page":69,"id":390},{"en":"ninety one","es":"noventa y uno","pos":"num","cat":"Numbers","page":71,"id":391},{"en":"seventy two","es":"setenta y dos","pos":"num","cat":"Numbers","page":72,"id":392},{"en":"fourth","es":"cuarto","pos":"num","cat":"Numbers","page":74,"id":393},{"en":"ten thousand","es":"diez mil","pos":"num","cat":"Numbers","page":75,"id":394},{"en":"fourteen","es":"catorce","pos":"num","cat":"Numbers","page":77,"id":395},{"en":"ninety two","es":"noventa y dos","pos":"num","cat":"Numbers","page":77,"id":396},{"en":"sixty one","es":"sesenta y uno","pos":"num","cat":"Numbers","page":79,"id":397},{"en":"fourty one","es":"cuarenta y uno","pos":"num","cat":"Numbers","page":81,"id":398},{"en":"nineteen","es":"diecinueve","pos":"num","cat":"Numbers","page":81,"id":399},{"en":"fifth","es":"quinto","pos":"num","cat":"Numbers","page":83,"id":400},{"en":"one hundred and eleven","es":"ciento once","pos":"num","cat":"Numbers","page":85,"id":401},{"en":"one hundred thousand","es":"cien mil","pos":"num","cat":"Numbers","page":87,"id":402},{"en":"seventy one","es":"setenta y uno","pos":"num","cat":"Numbers","page":89,"id":403},{"en":"fourty two","es":"cuarenta y dos","pos":"num","cat":"Numbers","page":90,"id":404},{"en":"one hundred and ten","es":"ciento diez","pos":"num","cat":"Numbers","page":92,"id":405},{"en":"thirty two","es":"treinta y dos","pos":"num","cat":"Numbers","page":93,"id":406},{"en":"woman","es":"mujer","pos":"noun","cat":"People","page":12,"id":407},{"en":"baby","es":"bebé","pos":"noun","cat":"People","page":13,"id":408},{"en":"parent","es":"padres","pos":"noun","cat":"People","page":13,"id":409},{"en":"king","es":"rey","pos":"noun","cat":"People","page":14,"id":410},{"en":"family","es":"familia","pos":"noun","cat":"People","page":25,"id":411},{"en":"man","es":"hombre","pos":"noun","cat":"People","page":32,"id":412},{"en":"wife","es":"esposa","pos":"noun","cat":"People","page":35,"id":413},{"en":"fan (person)","es":"fan","pos":"noun","cat":"People","page":36,"id":414},{"en":"player","es":"jugador","pos":"noun","cat":"People","page":36,"id":415},{"en":"adult","es":"adulto","pos":"noun","cat":"People","page":43,"id":416},{"en":"boy","es":"chico","pos":"noun","cat":"People","page":50,"id":417},{"en":"friend","es":"amigo","pos":"noun","cat":"People","page":55,"id":418},{"en":"sister","es":"hermana","pos":"noun","cat":"People","page":56,"id":419},{"en":"neighbor","es":"vecino","pos":"noun","cat":"People","page":57,"id":420},{"en":"brother","es":"hermano","pos":"noun","cat":"People","page":58,"id":421},{"en":"president","es":"presidente","pos":"noun","cat":"People","page":59,"id":422},{"en":"human","es":"ser humano","pos":"noun","cat":"People","page":61,"id":423},{"en":"child","es":"niño","pos":"noun","cat":"People","page":64,"id":424},{"en":"girl","es":"chica","pos":"noun","cat":"People","page":64,"id":425},{"en":"queen","es":"reina","pos":"noun","cat":"People","page":65,"id":426},{"en":"mother","es":"madre","pos":"noun","cat":"People","page":69,"id":427},{"en":"husband","es":"marido","pos":"noun","cat":"People","page":75,"id":428},{"en":"grandfather","es":"abuelo","pos":"noun","cat":"People","page":80,"id":429},{"en":"daughter","es":"hija","pos":"noun","cat":"People","page":84,"id":430},{"en":"grandmother","es":"abuela","pos":"noun","cat":"People","page":86,"id":431},{"en":"crowd","es":"multitud","pos":"noun","cat":"People","page":87,"id":432},{"en":"person","es":"persona","pos":"noun","cat":"People","page":87,"id":433},{"en":"son","es":"hijo","pos":"noun","cat":"People","page":88,"id":434},{"en":"victim","es":"víctima","pos":"noun","cat":"People","page":89,"id":435},{"en":"father","es":"padre","pos":"noun","cat":"People","page":93,"id":436},{"en":"park","es":"parque","pos":"noun","cat":"Places","page":7,"id":437},{"en":"theater","es":"teatro","pos":"noun","cat":"Places","page":14,"id":438},{"en":"town","es":"pueblo","pos":"noun","cat":"Places","page":16,"id":439},{"en":"shop","es":"tienda","pos":"noun","cat":"Places","page":18,"id":440},{"en":"store","es":"tienda","pos":"noun","cat":"Places","page":18,"id":441},{"en":"ground","es":"suelo","pos":"noun","cat":"Places","page":21,"id":442},{"en":"hotel","es":"hotel","pos":"noun","cat":"Places","page":27,"id":443},{"en":"court","es":"corte","pos":"noun","cat":"Places","page":28,"id":444},{"en":"bank","es":"banco","pos":"noun","cat":"Places","page":32,"id":445},{"en":"restaurant","es":"restaurante","pos":"noun","cat":"Places","page":33,"id":446},{"en":"train station","es":"estación de tren","pos":"noun","cat":"Places","page":43,"id":447},{"en":"building","es":"edificio","pos":"noun","cat":"Places","page":46,"id":448},{"en":"market","es":"mercado","pos":"noun","cat":"Places","page":51,"id":449},{"en":"airport","es":"aeropuerto","pos":"noun","cat":"Places","page":54,"id":450},{"en":"house","es":"casa","pos":"noun","cat":"Places","page":57,"id":451},{"en":"bar","es":"bar","pos":"noun","cat":"Places","page":60,"id":452},{"en":"university","es":"universidad","pos":"noun","cat":"Places","page":60,"id":453},{"en":"library","es":"biblioteca","pos":"noun","cat":"Places","page":62,"id":454},{"en":"office","es":"oficina","pos":"noun","cat":"Places","page":62,"id":455},{"en":"school","es":"escuela","pos":"noun","cat":"Places","page":64,"id":456},{"en":"club","es":"club","pos":"noun","cat":"Places","page":67,"id":457},{"en":"city","es":"ciudad","pos":"noun","cat":"Places","page":68,"id":458},{"en":"location","es":"lugar","pos":"noun","cat":"Places","page":68,"id":459},{"en":"space","es":"espacio exterior","pos":"noun","cat":"Places","page":68,"id":460},{"en":"bridge","es":"puente","pos":"noun","cat":"Places","page":71,"id":461},{"en":"farm","es":"granja","pos":"noun","cat":"Places","page":73,"id":462},{"en":"country","es":"país","pos":"noun","cat":"Places","page":77,"id":463},{"en":"church","es":"iglesia","pos":"noun","cat":"Places","page":79,"id":464},{"en":"corner","es":"esquina","pos":"noun","cat":"Places","page":79,"id":465},{"en":"street","es":"calle","pos":"noun","cat":"Places","page":79,"id":466},{"en":"camp","es":"campamento","pos":"noun","cat":"Places","page":84,"id":467},{"en":"apartment","es":"apartamento","pos":"noun","cat":"Places","page":85,"id":468},{"en":"hospital","es":"hospital","pos":"noun","cat":"Places","page":90,"id":469},{"en":"room","es":"cuarto","pos":"noun","cat":"Places","page":90,"id":470},{"en":"it","es":"esto","pos":"pron","cat":"Pronouns","page":17,"id":471},{"en":"you (plural)","es":"ustedes","pos":"pron","cat":"Pronouns","page":33,"id":472},{"en":"you","es":"tú","pos":"pron","cat":"Pronouns","page":41,"id":473},{"en":"I","es":"yo","pos":"pron","cat":"Pronouns","page":42,"id":474},{"en":"she","es":"ella","pos":"pron","cat":"Pronouns","page":53,"id":475},{"en":"we","es":"nosotros","pos":"pron","cat":"Pronouns","page":74,"id":476},{"en":"they","es":"ellos","pos":"pron","cat":"Pronouns","page":85,"id":477},{"en":"he","es":"él","pos":"pron","cat":"Pronouns","page":88,"id":478},{"en":"Spring","es":"primavera","pos":"noun","cat":"Seasons","page":8,"id":479},{"en":"Winter","es":"invierno","pos":"noun","cat":"Seasons","page":16,"id":480},{"en":"Summer","es":"verano","pos":"noun","cat":"Seasons","page":44,"id":481},{"en":"Fall","es":"otoño","pos":"noun","cat":"Seasons","page":84,"id":482},{"en":"season","es":"estación","pos":"noun","cat":"Seasons","page":84,"id":483},{"en":"marriage","es":"matrimonio","pos":"noun","cat":"Society","page":10,"id":484},{"en":"sex","es":"sexo","pos":"noun","cat":"Society","page":10,"id":485},{"en":"exercise","es":"ejercicio","pos":"noun","cat":"Society","page":11,"id":486},{"en":"sport","es":"deporte","pos":"noun","cat":"Society","page":11,"id":487},{"en":"money","es":"dinero","pos":"noun","cat":"Society","page":17,"id":488},{"en":"sign","es":"señal","pos":"noun","cat":"Society","page":17,"id":489},{"en":"price","es":"precio","pos":"noun","cat":"Society","page":18,"id":490},{"en":"heaven","es":"cielo","pos":"noun","cat":"Society","page":23,"id":491},{"en":"contract","es":"contrato","pos":"noun","cat":"Society","page":28,"id":492},{"en":"dollar","es":"dólar","pos":"noun","cat":"Society","page":28,"id":493},{"en":"medicine","es":"medicina","pos":"noun","cat":"Society","page":30,"id":494},{"en":"wedding","es":"boda","pos":"noun","cat":"Society","page":35,"id":495},{"en":"ball","es":"pelota","pos":"noun","cat":"Society","page":36,"id":496},{"en":"team","es":"equipo","pos":"noun","cat":"Society","page":36,"id":497},{"en":"technology","es":"tecnología","pos":"noun","cat":"Society","page":41,"id":498},{"en":"drug","es":"droga","pos":"noun","cat":"Society","page":43,"id":499},{"en":"prison","es":"cárcel","pos":"noun","cat":"Society","page":43,"id":500},{"en":"death","es":"muerte","pos":"noun","cat":"Society","page":46,"id":501},{"en":"game","es":"juego","pos":"noun","cat":"Society","page":48,"id":502},{"en":"race (competition)","es":"carrera","pos":"noun","cat":"Society","page":58,"id":503},{"en":"election","es":"elección","pos":"noun","cat":"Society","page":59,"id":504},{"en":"race (ethnicity)","es":"raza","pos":"noun","cat":"Society","page":61,"id":505},{"en":"gun","es":"pistola","pos":"noun","cat":"Society","page":63,"id":506},{"en":"murder","es":"asesinato","pos":"noun","cat":"Society","page":63,"id":507},{"en":"energy","es":"energía","pos":"noun","cat":"Society","page":70,"id":508},{"en":"magazine","es":"revista","pos":"noun","cat":"Society","page":70,"id":509},{"en":"science","es":"ciencia","pos":"noun","cat":"Society","page":70,"id":510},{"en":"bill","es":"cuenta","pos":"noun","cat":"Society","page":72,"id":511},{"en":"God","es":"Dios","pos":"noun","cat":"Society","page":80,"id":512},{"en":"peace","es":"paz","pos":"noun","cat":"Society","page":80,"id":513},{"en":"army","es":"ejército","pos":"noun","cat":"Society","page":81,"id":514},{"en":"attack","es":"ataque","pos":"noun","cat":"Society","page":81,"id":515},{"en":"newspaper","es":"periódico","pos":"noun","cat":"Society","page":81,"id":516},{"en":"ship","es":"buque","pos":"noun","cat":"Society","page":81,"id":517},{"en":"war","es":"guerra","pos":"noun","cat":"Society","page":81,"id":518},{"en":"hell","es":"infierno","pos":"noun","cat":"Society","page":88,"id":519},{"en":"religion","es":"religión","pos":"noun","cat":"Society","page":88,"id":520},{"en":"poison","es":"veneno","pos":"noun","cat":"Society","page":89,"id":521},{"en":"to play","es":"jugar","pos":"verb","cat":"Verbs","page":7,"id":522},{"en":"to swim","es":"nadar","pos":"verb","cat":"Verbs","page":8,"id":523},{"en":"to fall","es":"caer","pos":"verb","cat":"Verbs","page":9,"id":524},{"en":"to fly","es":"volar","pos":"verb","cat":"Verbs","page":9,"id":525},{"en":"to sit","es":"sentarse","pos":"verb","cat":"Verbs","page":10,"id":526},{"en":"to stand","es":"pararse","pos":"verb","cat":"Verbs","page":11,"id":527},{"en":"to run","es":"correr","pos":"verb","cat":"Verbs","page":12,"id":528},{"en":"to walk","es":"caminar","pos":"verb","cat":"Verbs","page":14,"id":529},{"en":"to climb","es":"escalar","pos":"verb","cat":"Verbs","page":15,"id":530},{"en":"to jump","es":"saltar","pos":"verb","cat":"Verbs","page":15,"id":531},{"en":"to push","es":"empujar","pos":"verb","cat":"Verbs","page":16,"id":532},{"en":"to get","es":"obtener","pos":"verb","cat":"Verbs","page":17,"id":533},{"en":"to give","es":"dar","pos":"verb","cat":"Verbs","page":17,"id":534},{"en":"to pull","es":"jalar","pos":"verb","cat":"Verbs","page":17,"id":535},{"en":"to buy","es":"comprar","pos":"verb","cat":"Verbs","page":18,"id":536},{"en":"to pay","es":"pagar","pos":"verb","cat":"Verbs","page":19,"id":537},{"en":"to count","es":"contar","pos":"verb","cat":"Verbs","page":20,"id":538},{"en":"to sell","es":"vender","pos":"verb","cat":"Verbs","page":20,"id":539},{"en":"to add","es":"sumar","pos":"verb","cat":"Verbs","page":21,"id":540},{"en":"to throw","es":"lanzar","pos":"verb","cat":"Verbs","page":22,"id":541},{"en":"to catch","es":"atrapar","pos":"verb","cat":"Verbs","page":23,"id":542},{"en":"to dig","es":"cavar","pos":"verb","cat":"Verbs","page":23,"id":543},{"en":"to pick up","es":"recoger","pos":"verb","cat":"Verbs","page":24,"id":544},{"en":"to bring","es":"traer","pos":"verb","cat":"Verbs","page":25,"id":545},{"en":"to carry","es":"llevar","pos":"verb","cat":"Verbs","page":25,"id":546},{"en":"to take","es":"tomar","pos":"verb","cat":"Verbs","page":25,"id":547},{"en":"to put","es":"poner","pos":"verb","cat":"Verbs","page":26,"id":548},{"en":"to build","es":"construir","pos":"verb","cat":"Verbs","page":27,"id":549},{"en":"to turn","es":"girar","pos":"verb","cat":"Verbs","page":27,"id":550},{"en":"to arrive","es":"llegar","pos":"verb","cat":"Verbs","page":28,"id":551},{"en":"to enter","es":"entrar","pos":"verb","cat":"Verbs","page":29,"id":552},{"en":"to leave","es":"salir","pos":"verb","cat":"Verbs","page":29,"id":553},{"en":"to sleep","es":"dormir","pos":"verb","cat":"Verbs","page":29,"id":554},{"en":"to help","es":"ayudar","pos":"verb","cat":"Verbs","page":30,"id":555},{"en":"to hurt","es":"lastimar","pos":"verb","cat":"Verbs","page":30,"id":556},{"en":"to wake","es":"despertar","pos":"verb","cat":"Verbs","page":30,"id":557},{"en":"to cry","es":"llorar","pos":"verb","cat":"Verbs","page":31,"id":558},{"en":"to sing","es":"cantar","pos":"verb","cat":"Verbs","page":31,"id":559},{"en":"to laugh","es":"reír","pos":"verb","cat":"Verbs","page":32,"id":560},{"en":"to work","es":"trabajar","pos":"verb","cat":"Verbs","page":32,"id":561},{"en":"to write","es":"escribir","pos":"verb","cat":"Verbs","page":32,"id":562},{"en":"to eat","es":"comer","pos":"verb","cat":"Verbs","page":33,"id":563},{"en":"to read","es":"leer","pos":"verb","cat":"Verbs","page":33,"id":564},{"en":"to cook","es":"cocinar","pos":"verb","cat":"Verbs","page":34,"id":565},{"en":"to smell","es":"oler","pos":"verb","cat":"Verbs","page":35,"id":566},{"en":"to listen","es":"escuchar","pos":"verb","cat":"Verbs","page":36,"id":567},{"en":"to fight","es":"pelear","pos":"verb","cat":"Verbs","page":37,"id":568},{"en":"to hit","es":"golpear","pos":"verb","cat":"Verbs","page":37,"id":569},{"en":"to hold","es":"sostener","pos":"verb","cat":"Verbs","page":37,"id":570},{"en":"to drive","es":"manejar","pos":"verb","cat":"Verbs","page":38,"id":571},{"en":"to ride","es":"montar","pos":"verb","cat":"Verbs","page":38,"id":572},{"en":"to set","es":"fijar","pos":"verb","cat":"Verbs","page":38,"id":573},{"en":"to look","es":"mirar","pos":"verb","cat":"Verbs","page":39,"id":574},{"en":"to see","es":"ver","pos":"verb","cat":"Verbs","page":39,"id":575},{"en":"to hear","es":"oír","pos":"verb","cat":"Verbs","page":40,"id":576},{"en":"to touch","es":"tocar","pos":"verb","cat":"Verbs","page":41,"id":577},{"en":"to use","es":"usar","pos":"verb","cat":"Verbs","page":41,"id":578},{"en":"to feel","es":"sentir","pos":"verb","cat":"Verbs","page":42,"id":579},{"en":"to know","es":"saber","pos":"verb","cat":"Verbs","page":43,"id":580},{"en":"to think","es":"pensar","pos":"verb","cat":"Verbs","page":43,"id":581},{"en":"to forget","es":"olvidar","pos":"verb","cat":"Verbs","page":44,"id":582},{"en":"to remember","es":"recordar","pos":"verb","cat":"Verbs","page":44,"id":583},{"en":"to choose","es":"elegir","pos":"verb","cat":"Verbs","page":45,"id":584},{"en":"to begin","es":"comenzar","pos":"verb","cat":"Verbs","page":46,"id":585},{"en":"to die (plant)","es":"morir","pos":"verb","cat":"Verbs","page":46,"id":586},{"en":"to love","es":"amar","pos":"verb","cat":"Verbs","page":46,"id":587},{"en":"to do","es":"hacer","pos":"verb","cat":"Verbs","page":47,"id":588},{"en":"to draw","es":"dibujar","pos":"verb","cat":"Verbs","page":47,"id":589},{"en":"to end","es":"terminar","pos":"verb","cat":"Verbs","page":47,"id":590},{"en":"to make","es":"hacer","pos":"verb","cat":"Verbs","page":47,"id":591},{"en":"to point","es":"señalar","pos":"verb","cat":"Verbs","page":48,"id":592},{"en":"to try","es":"intentar","pos":"verb","cat":"Verbs","page":48,"id":593},{"en":"to call","es":"llamar","pos":"verb","cat":"Verbs","page":49,"id":594},{"en":"to say","es":"decir","pos":"verb","cat":"Verbs","page":49,"id":595},{"en":"to ask","es":"preguntar","pos":"verb","cat":"Verbs","page":50,"id":596},{"en":"to tell","es":"contar","pos":"verb","cat":"Verbs","page":50,"id":597},{"en":"to explain","es":"explicar","pos":"verb","cat":"Verbs","page":51,"id":598},{"en":"to teach","es":"enseñar","pos":"verb","cat":"Verbs","page":51,"id":599},{"en":"to grow up","es":"crecer","pos":"verb","cat":"Verbs","page":52,"id":600},{"en":"to learn","es":"aprender","pos":"verb","cat":"Verbs","page":52,"id":601},{"en":"to send","es":"enviar","pos":"verb","cat":"Verbs","page":53,"id":602},{"en":"to move","es":"mover","pos":"verb","cat":"Verbs","page":54,"id":603},{"en":"to pass","es":"pasar","pos":"verb","cat":"Verbs","page":54,"id":604},{"en":"to wait","es":"esperar","pos":"verb","cat":"Verbs","page":54,"id":605},{"en":"to come","es":"venir","pos":"verb","cat":"Verbs","page":55,"id":606},{"en":"to go","es":"ir","pos":"verb","cat":"Verbs","page":55,"id":607},{"en":"to find","es":"encontrar","pos":"verb","cat":"Verbs","page":56,"id":608},{"en":"to keep","es":"guardar","pos":"verb","cat":"Verbs","page":56,"id":609},{"en":"to stay","es":"quedarse","pos":"verb","cat":"Verbs","page":56,"id":610},{"en":"to have","es":"tener","pos":"verb","cat":"Verbs","page":57,"id":611},{"en":"to lose","es":"perder","pos":"verb","cat":"Verbs","page":57,"id":612},{"en":"to be","es":"ser","pos":"verb","cat":"Verbs","page":58,"id":613},{"en":"to become","es":"volverse","pos":"verb","cat":"Verbs","page":59,"id":614},{"en":"to win","es":"ganar","pos":"verb","cat":"Verbs","page":59,"id":615},{"en":"to like","es":"gustar","pos":"verb","cat":"Verbs","page":60,"id":616},{"en":"to believe","es":"creer","pos":"verb","cat":"Verbs","page":61,"id":617},{"en":"to hate","es":"odiar","pos":"verb","cat":"Verbs","page":61,"id":618},{"en":"to agree","es":"estar de acuerdo","pos":"verb","cat":"Verbs","page":62,"id":619},{"en":"to hope","es":"esperar","pos":"verb","cat":"Verbs","page":63,"id":620},{"en":"to want","es":"querer","pos":"verb","cat":"Verbs","page":63,"id":621},{"en":"to let","es":"dejar","pos":"verb","cat":"Verbs","page":64,"id":622},{"en":"to need","es":"necesitar","pos":"verb","cat":"Verbs","page":64,"id":623},{"en":"to dream","es":"soñar","pos":"verb","cat":"Verbs","page":65,"id":624},{"en":"to mean","es":"significar","pos":"verb","cat":"Verbs","page":66,"id":625},{"en":"to speak","es":"hablar","pos":"verb","cat":"Verbs","page":66,"id":626},{"en":"to change","es":"cambiar","pos":"verb","cat":"Verbs","page":67,"id":627},{"en":"to follow","es":"seguir","pos":"verb","cat":"Verbs","page":67,"id":628},{"en":"to lead","es":"dirigir","pos":"verb","cat":"Verbs","page":68,"id":629},{"en":"to show","es":"mostrar","pos":"verb","cat":"Verbs","page":68,"id":630},{"en":"to continue","es":"continuar","pos":"verb","cat":"Verbs","page":69,"id":631},{"en":"to stop","es":"parar","pos":"verb","cat":"Verbs","page":69,"id":632},{"en":"to include","es":"incluir","pos":"verb","cat":"Verbs","page":70,"id":633},{"en":"to protect","es":"proteger","pos":"verb","cat":"Verbs","page":70,"id":634},{"en":"to cross","es":"cruzar","pos":"verb","cat":"Verbs","page":71,"id":635},{"en":"to offer","es":"ofrecer","pos":"verb","cat":"Verbs","page":71,"id":636},{"en":"to hang","es":"colgar","pos":"verb","cat":"Verbs","page":72,"id":637},{"en":"to wear","es":"llevar puesto","pos":"verb","cat":"Verbs","page":72,"id":638},{"en":"to drop","es":"dejar caer","pos":"verb","cat":"Verbs","page":73,"id":639},{"en":"to raise","es":"levantar","pos":"verb","cat":"Verbs","page":73,"id":640},{"en":"to cut","es":"cortar","pos":"verb","cat":"Verbs","page":74,"id":641},{"en":"to tie","es":"atar","pos":"verb","cat":"Verbs","page":74,"id":642},{"en":"to fold","es":"doblar","pos":"verb","cat":"Verbs","page":75,"id":643},{"en":"to squeeze","es":"apretar","pos":"verb","cat":"Verbs","page":75,"id":644},{"en":"to shake","es":"sacudir","pos":"verb","cat":"Verbs","page":76,"id":645},{"en":"to taste","es":"probar","pos":"verb","cat":"Verbs","page":78,"id":646},{"en":"to marry","es":"casarse","pos":"verb","cat":"Verbs","page":79,"id":647},{"en":"to pray","es":"rezar","pos":"verb","cat":"Verbs","page":80,"id":648},{"en":"to burn","es":"quemar","pos":"verb","cat":"Verbs","page":81,"id":649},{"en":"to close","es":"cerrar","pos":"verb","cat":"Verbs","page":82,"id":650},{"en":"to cut (flowers)","es":"cortar","pos":"verb","cat":"Verbs","page":83,"id":651},{"en":"to grow","es":"cultivar","pos":"verb","cat":"Verbs","page":83,"id":652},{"en":"to wake up","es":"despertarse","pos":"verb","cat":"Verbs","page":84,"id":653},{"en":"to live","es":"vivir","pos":"verb","cat":"Verbs","page":85,"id":654},{"en":"to wash","es":"lavar","pos":"verb","cat":"Verbs","page":86,"id":655},{"en":"to dance","es":"bailar","pos":"verb","cat":"Verbs","page":87,"id":656},{"en":"to kill","es":"matar","pos":"verb","cat":"Verbs","page":88,"id":657},{"en":"to die","es":"morirse","pos":"verb","cat":"Verbs","page":89,"id":658},{"en":"to break","es":"romper","pos":"verb","cat":"Verbs","page":90,"id":659},{"en":"to bend","es":"doblar","pos":"verb","cat":"Verbs","page":91,"id":660},{"en":"to open","es":"abrir","pos":"verb","cat":"Verbs","page":91,"id":661},{"en":"to drink","es":"beber","pos":"verb","cat":"Verbs","page":93,"id":662},{"en":"to watch","es":"mirar","pos":"verb","cat":"Verbs","page":93,"id":663}];
+
+const VOCAB_STORAGE_KEY = 'spanishVocabSRS_v1';
+let vocabCards = []; // user-created flashcards
+let vocabSrs = loadVocabSRS();
+let currentMode = 'verbos';
+
+// --- Vocab SRS State ---
+function loadVocabSRS() {
+  try {
+    const raw = localStorage.getItem(VOCAB_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { cards: {}, myCards: [], globalStats: { totalCorrect: 0, totalWrong: 0, sessions: 0 }, misses: {} };
+}
+
+function saveVocabSRS() {
+  try { localStorage.setItem(VOCAB_STORAGE_KEY, JSON.stringify(vocabSrs)); } catch(e) {}
+}
+
+function getVocabCard(cid) {
+  if (!vocabSrs.cards[cid]) {
+    vocabSrs.cards[cid] = { status: 'new', interval: 0, ease: 2.5, due: 0, reps: 0 };
+  }
+  return vocabSrs.cards[cid];
+}
+
+function reviewVocabCard(cid, correct) {
+  const card = getVocabCard(cid);
+  const now = Date.now();
+  if (correct) {
+    if (card.status === 'new' || card.status === 'learning') {
+      if (card.reps === 0) { card.interval = 1; card.status = 'learning'; }
+      else if (card.reps === 1) { card.interval = 3; card.status = 'learning'; }
+      else { card.interval = Math.round(card.interval * card.ease); card.status = 'review'; }
+      card.reps++;
+    } else {
+      card.reps++;
+      card.interval = Math.max(1, Math.round(card.interval * card.ease));
+    }
+    card.ease = Math.min(3.0, card.ease + 0.1);
+  } else {
+    card.reps = 0; card.interval = 1;
+    card.ease = Math.max(1.3, card.ease - 0.2);
+    card.status = 'learning';
+  }
+  card.due = now + card.interval * DAY;
+  saveVocabSRS();
+}
+
+// --- Mode Switching ---
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeVerbos').classList.toggle('active', mode === 'verbos');
+  document.getElementById('modeVocab').classList.toggle('active', mode === 'vocab');
+  document.getElementById('modeTitle').textContent = mode === 'verbos' ? 'Verbos' : 'Vocabulario';
+  document.getElementById('verbosNav').style.display = mode === 'verbos' ? 'flex' : 'none';
+  document.getElementById('vocabNav').style.display = mode === 'vocab' ? 'flex' : 'none';
+
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+  if (mode === 'verbos') {
+    // Reset verb nav
+    document.querySelectorAll('#verbosNav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#verbosNav button')[0].classList.add('active');
+    document.getElementById('settings').classList.add('active');
+    updatePoolInfo();
+  } else {
+    // Reset vocab nav
+    document.querySelectorAll('#vocabNav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#vocabNav button')[0].classList.add('active');
+    document.getElementById('vocabBank').classList.add('active');
+    renderWordBank();
+    updateVocabPoolInfo();
+  }
+}
+
+// --- Vocab Nav ---
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#vocabNav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vocabNav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.screen).classList.add('active');
+      if (btn.dataset.screen === 'vocabBank') renderWordBank();
+      if (btn.dataset.screen === 'vocabReview') updateVocabPoolInfo();
+      if (btn.dataset.screen === 'vocabCards') renderMyCards();
+    });
+  });
+});
+
+// --- Word Bank ---
+let wbActiveCat = 'All';
+
+function buildCatFilters() {
+  const cats = ['All', ...new Set(WORD_BANK.map(w => w.cat))];
+  const div = document.getElementById('catFilters');
+  div.innerHTML = cats.map(c =>
+    '<button class="cat-pill' + (c === wbActiveCat ? ' active' : '') + '" onclick="setWbCat(\'' + c + '\')">' + c + '</button>'
+  ).join('');
+}
+
+function setWbCat(cat) {
+  wbActiveCat = cat;
+  buildCatFilters();
+  filterWordBank();
+}
+
+function filterWordBank() {
+  const q = (document.getElementById('wbSearch').value || '').toLowerCase().trim();
+  const list = document.getElementById('wordList');
+  let filtered = WORD_BANK;
+  if (wbActiveCat !== 'All') filtered = filtered.filter(w => w.cat === wbActiveCat);
+  if (q) filtered = filtered.filter(w => w.es.toLowerCase().includes(q) || w.en.toLowerCase().includes(q));
+
+  document.getElementById('wbCount').textContent = filtered.length + ' words';
+  // Render (limit to 100 for perf, show "scroll for more")
+  const show = filtered.slice(0, 150);
+  list.innerHTML = show.map(w =>
+    '<div class="word-item" onclick="toggleWordEn(this)">' +
+      '<span class="word-es">' + w.es + '<span class="word-pos">' + w.pos + '</span></span>' +
+      '<span class="word-en hidden">' + w.en + '</span>' +
+      '<span class="word-cat-label">' + w.cat + '</span>' +
+    '</div>'
+  ).join('');
+  if (filtered.length > 150) {
+    list.innerHTML += '<div style="text-align:center;padding:12px;color:var(--dim);font-size:13px">Showing 150 of ' + filtered.length + '. Use search to narrow.</div>';
+  }
+}
+
+function toggleWordEn(el) {
+  const en = el.querySelector('.word-en');
+  en.classList.toggle('hidden');
+}
+
+function renderWordBank() {
+  buildCatFilters();
+  filterWordBank();
+}
+
+// --- My Cards Management ---
+function renderMyCards() {
+  const list = document.getElementById('myCardsList');
+  const cards = vocabSrs.myCards || [];
+  if (!cards.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">\u{1F0CF}</div><h3>No cards yet</h3><p>Create flashcards in a Claude session, then import them here as JSON.</p></div>';
+    return;
+  }
+  list.innerHTML = cards.map((c, i) => {
+    const srsCard = getVocabCard('vc_' + i);
+    const statusClass = srsCard.status === 'new' ? 'new-badge' : srsCard.status === 'learning' ? 'learning-badge' : 'review-badge';
+    const statusText = srsCard.status === 'new' ? 'NEW' : srsCard.status === 'learning' ? 'LEARNING' : 'REVIEW';
+    const thumb = c.imageUrl
+      ? '<img class="my-card-thumb" src="' + c.imageUrl + '" onerror="this.className=\'my-card-thumb no-img\';this.src=\'\';this.textContent=\'\u{1F4F7}\'">'
+      : '<div class="my-card-thumb no-img">\u{1F4F7}</div>';
+    return '<div class="my-card-item">' +
+      thumb +
+      '<div class="my-card-info"><div class="my-card-es">' + c.es + '</div>' +
+      (c.note ? '<div class="my-card-note">' + c.note + '</div>' : '') +
+      '</div>' +
+      '<span class="my-card-status card-badge ' + statusClass + '">' + statusText + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function importVocabCards() {
+  const textarea = document.getElementById('importJsonText');
+  const text = textarea.value.trim();
+  if (!text) { alert('Paste JSON first.'); return; }
+  try {
+    const cards = JSON.parse(text);
+    if (!Array.isArray(cards)) { alert('JSON must be an array.'); return; }
+    let added = 0;
+    if (!vocabSrs.myCards) vocabSrs.myCards = [];
+    cards.forEach(c => {
+      if (!c.es) return;
+      // Check for duplicates by Spanish word
+      const exists = vocabSrs.myCards.some(existing => existing.es.toLowerCase() === c.es.toLowerCase());
+      if (exists) return;
+      vocabSrs.myCards.push({
+        es: c.es,
+        en: c.en || '',
+        imageUrl: c.imageUrl || '',
+        note: c.note || '',
+        cat: c.cat || 'Custom'
+      });
+      added++;
+    });
+    saveVocabSRS();
+    textarea.value = '';
+    alert('Imported ' + added + ' new cards! (' + (cards.length - added) + ' duplicates skipped)');
+    renderMyCards();
+    updateVocabPoolInfo();
+  } catch(e) { alert('Invalid JSON: ' + e.message); }
+}
+
+function importVocabFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('importJsonText').value = e.target.result;
+    importVocabCards();
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportVocabData() {
+  const blob = new Blob([JSON.stringify(vocabSrs, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const d = new Date();
+  a.download = 'vocab-backup-' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importVocabBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.cards) { alert('Invalid backup file.'); return; }
+      if (!confirm('This will replace your vocab progress with the backup. Continue?')) return;
+      vocabSrs = imported;
+      saveVocabSRS();
+      renderMyCards();
+      updateVocabPoolInfo();
+      alert('Backup restored! (' + (vocabSrs.myCards || []).length + ' cards loaded)');
+    } catch(err) { alert('Error reading file: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetVocabData() {
+  if (confirm('This will erase ALL your vocabulary cards and SRS progress. Are you sure?')) {
+    localStorage.removeItem(VOCAB_STORAGE_KEY);
+    vocabSrs = { cards: {}, myCards: [], globalStats: { totalCorrect: 0, totalWrong: 0, sessions: 0 }, misses: {} };
+    renderMyCards();
+    updateVocabPoolInfo();
+    alert('Vocab progress reset!');
+  }
+}
+
+// --- Vocab SRS Review ---
+let vocabDeck = [];
+let vCurrent = null;
+let vAnswered = false;
+let vCorrect = 0, vWrong = 0, vStreak = 0, vQNum = 0;
+
+function updateVocabPoolInfo() {
+  const cards = vocabSrs.myCards || [];
+  const now = Date.now();
+  let dueN = 0, learningN = 0, newN = 0;
+  cards.forEach((c, i) => {
+    const srsCard = getVocabCard('vc_' + i);
+    if (srsCard.status === 'new') newN++;
+    else if (srsCard.status === 'learning') learningN++;
+    else if (srsCard.due <= now) dueN++;
+  });
+  document.getElementById('vDueCount').textContent = dueN;
+  document.getElementById('vLearningCount').textContent = learningN;
+  document.getElementById('vNewCount').textContent = newN;
+  document.getElementById('vTotalCards').textContent = cards.length;
+
+  const btn = document.getElementById('vocabStartBtn');
+  if (!cards.length) {
+    btn.textContent = 'No cards to review - import some first!';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  } else {
+    btn.textContent = 'Start Review (' + Math.min(20, dueN + learningN + newN) + ' cards)';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+}
+
+function buildVocabSession() {
+  const cards = vocabSrs.myCards || [];
+  const now = Date.now();
+  const due = [], learning = [], newCards = [];
+
+  cards.forEach((c, i) => {
+    const cid = 'vc_' + i;
+    const srsCard = getVocabCard(cid);
+    const item = { idx: i, cid, card: c };
+    if (srsCard.status === 'new') newCards.push(item);
+    else if (srsCard.status === 'learning') learning.push({ ...item, overdue: now - srsCard.due });
+    else if (srsCard.due <= now) due.push({ ...item, overdue: now - srsCard.due });
+  });
+
+  due.sort((a, b) => b.overdue - a.overdue);
+  learning.sort((a, b) => b.overdue - a.overdue);
+
+  const deck = [];
+  const maxCards = 20;
+  for (const item of due) { if (deck.length >= maxCards) break; deck.push(item); }
+  for (const item of learning) { if (deck.length >= maxCards) break; deck.push(item); }
+  for (const item of newCards) { if (deck.length >= maxCards) break; deck.push(item); }
+
+  // Shuffle
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function startVocabReview() {
+  vocabDeck = buildVocabSession();
+  if (!vocabDeck.length) { alert('No cards available for review!'); return; }
+  vCorrect = 0; vWrong = 0; vStreak = 0; vQNum = 0;
+  document.getElementById('vocabStartBtn').style.display = 'none';
+  document.getElementById('vocabPoolInfo').style.display = 'none';
+  document.getElementById('vocabQuizArea').style.display = 'flex';
+  document.getElementById('vTotalQ').textContent = vocabDeck.length;
+  showVocabQuestion();
+}
+
+function showVocabQuestion() {
+  if (vQNum >= vocabDeck.length) {
+    vocabSrs.globalStats.sessions++;
+    saveVocabSRS();
+    // End session
+    document.getElementById('vocabQuizArea').style.display = 'none';
+    document.getElementById('vocabStartBtn').style.display = '';
+    document.getElementById('vocabPoolInfo').style.display = '';
+    updateVocabPoolInfo();
+    const total = vCorrect + vWrong;
+    const pct = total ? Math.round((vCorrect / total) * 100) : 0;
+    alert('Session complete! ' + pct + '% (' + vCorrect + '/' + total + ')');
+    return;
+  }
+
+  vCurrent = vocabDeck[vQNum];
+  vAnswered = false;
+  const c = vCurrent.card;
+  const srsCard = getVocabCard(vCurrent.cid);
+
+  // Badge
+  const badge = document.getElementById('vCardBadge');
+  if (srsCard.status === 'new') { badge.className = 'card-badge new-badge'; badge.textContent = 'NEW'; }
+  else if (srsCard.status === 'learning') { badge.className = 'card-badge learning-badge'; badge.textContent = 'LEARNING'; }
+  else { badge.className = 'card-badge review-badge'; badge.textContent = 'REVIEW'; }
+
+  // Image
+  const imgWrap = document.getElementById('vCardImageWrap');
+  if (c.imageUrl) {
+    imgWrap.innerHTML = '<img class="vocab-card-image" src="' + c.imageUrl + '" onerror="this.className=\'vocab-card-image no-image\';this.src=\'\';this.innerHTML=\'\u{1F4F7}\'">';
+  } else {
+    imgWrap.innerHTML = '<div class="vocab-card-image no-image">\u{1F4F7}</div>';
+  }
+
+  // Note
+  document.getElementById('vCardNote').textContent = c.note || '';
+
+  // English reveal button (hidden)
+  const enReveal = document.getElementById('vEnReveal');
+  enReveal.textContent = c.en || 'English';
+  enReveal.classList.remove('shown');
+
+  // Input
+  const inp = document.getElementById('vocabAnswerInput');
+  inp.value = '';
+  inp.className = '';
+  inp.disabled = false;
+  inp.focus();
+
+  document.getElementById('vAnswerReveal').innerHTML = '';
+  document.getElementById('vRevealBtn').style.display = '';
+  document.getElementById('vSubmitBtn').style.display = '';
+  document.getElementById('vNextBtn').style.display = 'none';
+
+  document.getElementById('vCorrectCount').textContent = vCorrect;
+  document.getElementById('vWrongCount').textContent = vWrong;
+  document.getElementById('vQuestionNum').textContent = vQNum + 1;
+  document.getElementById('vProgressFill').style.width = ((vQNum / vocabDeck.length) * 100) + '%';
+
+  document.getElementById('streakDisplay').textContent = vStreak ? vStreak + ' streak' : '';
+}
+
+function vocabCheckAnswer() {
+  if (vAnswered) { vocabNextQuestion(); return; }
+  const inp = document.getElementById('vocabAnswerInput');
+  const userAns = inp.value.trim();
+  if (!userAns) return;
+  vAnswered = true;
+
+  const correctAns = vCurrent.card.es;
+  const exactMatch = userAns.toLowerCase() === correctAns.toLowerCase();
+  const normalMatch = normalize(userAns) === normalize(correctAns);
+
+  if (exactMatch) {
+    inp.className = 'correct';
+    vCorrect++;
+    vStreak++;
+    vocabSrs.globalStats.totalCorrect++;
+    reviewVocabCard(vCurrent.cid, true);
+    document.getElementById('vAnswerReveal').innerHTML = '<span class="correct-answer">Correct!</span>';
+  } else if (normalMatch) {
+    inp.className = 'correct';
+    vCorrect++;
+    vStreak++;
+    vocabSrs.globalStats.totalCorrect++;
+    reviewVocabCard(vCurrent.cid, true);
+    document.getElementById('vAnswerReveal').innerHTML = '<span class="correct-answer">Correct! (with accents: ' + correctAns + ')</span>';
+  } else {
+    inp.className = 'wrong';
+    vWrong++;
+    vStreak = 0;
+    vocabSrs.globalStats.totalWrong++;
+    reviewVocabCard(vCurrent.cid, false);
+    const key = correctAns;
+    vocabSrs.misses[key] = (vocabSrs.misses[key] || 0) + 1;
+    saveVocabSRS();
+    document.getElementById('vAnswerReveal').innerHTML = '<span class="correct-answer">' + correctAns + '</span>';
+  }
+
+  // Show English
+  document.getElementById('vEnReveal').classList.add('shown');
+
+  inp.disabled = true;
+  document.getElementById('vRevealBtn').style.display = 'none';
+  document.getElementById('vSubmitBtn').style.display = 'none';
+  document.getElementById('vNextBtn').style.display = '';
+  document.getElementById('vCorrectCount').textContent = vCorrect;
+  document.getElementById('vWrongCount').textContent = vWrong;
+  document.getElementById('streakDisplay').textContent = vStreak ? vStreak + ' streak' : '';
+}
+
+function vocabRevealAnswer() {
+  if (vAnswered) return;
+  vAnswered = true;
+  vWrong++;
+  vStreak = 0;
+  vocabSrs.globalStats.totalWrong++;
+  reviewVocabCard(vCurrent.cid, false);
+  const key = vCurrent.card.es;
+  vocabSrs.misses[key] = (vocabSrs.misses[key] || 0) + 1;
+  saveVocabSRS();
+
+  const inp = document.getElementById('vocabAnswerInput');
+  inp.className = 'wrong';
+  inp.disabled = true;
+  document.getElementById('vAnswerReveal').innerHTML = '<span class="correct-answer">' + vCurrent.card.es + '</span>';
+  document.getElementById('vEnReveal').classList.add('shown');
+  document.getElementById('vRevealBtn').style.display = 'none';
+  document.getElementById('vSubmitBtn').style.display = 'none';
+  document.getElementById('vNextBtn').style.display = '';
+  document.getElementById('vCorrectCount').textContent = vCorrect;
+  document.getElementById('vWrongCount').textContent = vWrong;
+  document.getElementById('streakDisplay').textContent = vStreak ? vStreak + ' streak' : '';
+}
+
+function vocabNextQuestion() {
+  vQNum++;
+  showVocabQuestion();
+}
+
+// Vocab keyboard handler
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('vocabAnswerInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (vAnswered) vocabNextQuestion();
+      else vocabCheckAnswer();
+    }
+  });
+});
+
 </script>
 </body>
 </html>
