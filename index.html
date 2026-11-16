@@ -127,6 +127,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .my-card-es{font-size:15px;font-weight:600}
 .my-card-note{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .my-card-status{font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.my-card-edit{background:none;border:1px solid rgba(255,255,255,.15);color:var(--dim);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;transition:.2s;white-space:nowrap;margin-left:6px}
+.my-card-edit:hover{border-color:var(--accent);color:var(--accent)}
+
+.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.edit-modal{background:var(--card);border-radius:16px;padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px}
+.edit-modal h3{margin:0;font-size:17px}
+.edit-modal label{font-size:12px;color:var(--dim);margin-bottom:2px;display:block}
+.edit-modal input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:14px;outline:none;box-sizing:border-box}
+.edit-modal input:focus{border-color:var(--accent)}
+.edit-modal .edit-preview{width:100%;max-height:150px;object-fit:contain;border-radius:8px;background:rgba(0,0,0,.2)}
+.edit-modal-btns{display:flex;gap:10px;margin-top:4px}
+.edit-modal-btns button{flex:1;padding:10px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer}
+.edit-modal-btns .save-btn{background:var(--accent);color:#fff}
+.edit-modal-btns .cancel-btn{background:rgba(255,255,255,.08);color:var(--dim)}
+.edit-modal-btns .delete-btn{background:rgba(255,80,80,.15);color:#ff5050;flex:0.6}
 
 .empty-state{text-align:center;padding:40px 20px;color:var(--dim)}
 .empty-state .icon{font-size:48px;margin-bottom:12px}
@@ -942,6 +957,7 @@ function renderMyCards() {
       (c.note ? '<div class="my-card-note">' + c.note + '</div>' : '') +
       '</div>' +
       '<span class="my-card-status card-badge ' + statusClass + '">' + statusText + '</span>' +
+      '<button class="my-card-edit" onclick="openEditCard(' + i + ')">Edit</button>' +
     '</div>';
   }).join('');
 }
@@ -1255,6 +1271,82 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// --- Edit Card Modal ---
+let editingCardIndex = -1;
+function openEditCard(i) {
+  editingCardIndex = i;
+  const c = vocabSrs.myCards[i];
+  if (!c) return;
+  let overlay = document.getElementById('editModalOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'editModalOverlay';
+    overlay.className = 'edit-modal-overlay';
+    overlay.innerHTML = '<div class="edit-modal">' +
+      '<h3 id="editModalTitle"></h3>' +
+      '<div><label>Image URL</label><input id="editImageUrl" placeholder="https://images.unsplash.com/..."></div>' +
+      '<img id="editImagePreview" class="edit-preview" style="display:none">' +
+      '<div><label>Personal Note</label><input id="editNote" placeholder="A personal connection..."></div>' +
+      '<div><label>English (hidden by default)</label><input id="editEn"></div>' +
+      '<div><label>Category</label><input id="editCat"></div>' +
+      '<div class="edit-modal-btns">' +
+        '<button class="cancel-btn" onclick="closeEditCard()">Cancel</button>' +
+        '<button class="delete-btn" onclick="deleteEditCard()">Delete</button>' +
+        '<button class="save-btn" onclick="saveEditCard()">Save</button>' +
+      '</div></div>';
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeEditCard(); });
+    document.body.appendChild(overlay);
+    document.getElementById('editImageUrl').addEventListener('input', function() {
+      const preview = document.getElementById('editImagePreview');
+      if (this.value) { preview.src = this.value; preview.style.display = 'block'; }
+      else { preview.style.display = 'none'; }
+    });
+  }
+  document.getElementById('editModalTitle').textContent = c.es;
+  document.getElementById('editImageUrl').value = c.imageUrl || '';
+  document.getElementById('editNote').value = c.note || '';
+  document.getElementById('editEn').value = c.en || '';
+  document.getElementById('editCat').value = c.cat || '';
+  const preview = document.getElementById('editImagePreview');
+  if (c.imageUrl) { preview.src = c.imageUrl; preview.style.display = 'block'; }
+  else { preview.style.display = 'none'; }
+  overlay.style.display = 'flex';
+}
+function closeEditCard() {
+  const overlay = document.getElementById('editModalOverlay');
+  if (overlay) overlay.style.display = 'none';
+  editingCardIndex = -1;
+}
+function saveEditCard() {
+  if (editingCardIndex < 0) return;
+  const c = vocabSrs.myCards[editingCardIndex];
+  c.imageUrl = document.getElementById('editImageUrl').value.trim();
+  c.note = document.getElementById('editNote').value.trim();
+  c.en = document.getElementById('editEn').value.trim();
+  c.cat = document.getElementById('editCat').value.trim() || 'Custom';
+  saveVocabSRS();
+  renderMyCards();
+  closeEditCard();
+}
+function deleteEditCard() {
+  if (editingCardIndex < 0) return;
+  const c = vocabSrs.myCards[editingCardIndex];
+  if (!confirm('Delete card "' + c.es + '"? This also removes its SRS progress.')) return;
+  vocabSrs.myCards.splice(editingCardIndex, 1);
+  // Clean up SRS data for removed card and re-index
+  const oldCards = vocabSrs.cards;
+  const newCards = {};
+  vocabSrs.myCards.forEach(function(_, idx) {
+    const oldKey = 'vc_' + (idx >= editingCardIndex ? idx + 1 : idx);
+    const newKey = 'vc_' + idx;
+    if (oldCards[oldKey]) newCards[newKey] = oldCards[oldKey];
+  });
+  vocabSrs.cards = newCards;
+  saveVocabSRS();
+  renderMyCards();
+  updateVocabPoolInfo();
+  closeEditCard();
+}
 </script>
 </body>
 </html>
